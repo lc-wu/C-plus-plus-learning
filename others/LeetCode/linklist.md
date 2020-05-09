@@ -41,3 +41,62 @@ more_head节点保存大于等于x的节点
 节点地址与原节点序号对应（难度在于节点中的随机指针）
 node_map： 原链表节点地址->节点位置（第几个节点）
 map2： 节点位置（第几个节点）-> 新链表节点地址
+
+~~~
+RandomListNode *copyRandomList(RandomListNode * head){
+    std::map<RandomListNode *, int> node_map; // 地址到节点位置的map
+    std::vector<RandomListNode *> node_vec; // 使用vector根据存储节点位置访问地址
+    RandomListNode * ptr = head;
+    int i = 0;
+    while(ptr)  
+    {
+        // 新链表节点push到node_vec
+        node_vec.push_back(new RandomListNode(ptr->label));
+        // 生成新链表节点位置 i 到地址的map
+        node_map[ptr] = i;
+        ptr = ptr->next;
+        i++;
+    }
+    node_vec.push_back(0);
+    // 链表指针和vector数组全部置放到开头
+    ptr = head;
+    i = 0;
+    // 此时链表已经拷贝到 node_vec中，缺少随机指针、next指针
+    while(ptr)
+    {
+        // 建立原来链表的next指针
+        node_vec[i]->next = node_vec[i+1];
+        if (ptr->random)
+        {   
+            // 建立原来链表的random指针
+            int id = node_map[ptr->random];
+            node_vec[i]->random = node_vec[id];
+        }
+        ptr = ptr->next;
+        i++;
+    }
+    return node_vec[0];
+}
+~~~
+
+### 6-a: 排序链表的合并（两个链表） 21
+已知两个已排序链表头结点指针l1和l2，将两个链表合并，合并后仍然有序，返回合并后头结点。
+> 设置一个临时头结点temp_head,pre指针指向临时头结点。
+ 比较l1和l2指向的结点，将较小的结点插入到pre指针后，并且向前移动较小结点的指针。最后返回 temp_head.next
+
+### 6-b: 排序链表的合并（多个） 23
+已知 k 个已排序链表头结点指针，将 K 个链表合并，合并后仍然有序，返回合并后头结点。
+
+> 思路1
+链表头结点指针保存在 vector<ListNode *> & lists
+将 k*n 个节点放到vector中， 再将vector排序， 再将节点顺序相连。设有k个链表，平均每个链表有n个节点
+利用 STL排序算法 sort
+~~~
+bool cmp(const ListNode * a, const ListNode *b)
+{
+    return a->val < b->val;
+}
+sort(node_vec.begin(), node_vec.end(), cmp); //链表所有节点存入vector<ListNode *> node_vec;
+~~~
+> 思路2
+对 k 个链表进行分治，两两进行合并
