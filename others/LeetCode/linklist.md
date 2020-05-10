@@ -87,7 +87,7 @@ RandomListNode *copyRandomList(RandomListNode * head){
 ### 6-b: 排序链表的合并（多个） 23
 已知 k 个已排序链表头结点指针，将 K 个链表合并，合并后仍然有序，返回合并后头结点。
 
-> 思路1
+> 思路1 排序
 链表头结点指针保存在 vector<ListNode *> & lists
 将 k*n 个节点放到vector中， 再将vector排序， 再将节点顺序相连。设有k个链表，平均每个链表有n个节点
 利用 STL排序算法 sort
@@ -99,4 +99,4 @@ bool cmp(const ListNode * a, const ListNode *b)
 sort(node_vec.begin(), node_vec.end(), cmp); //链表所有节点存入vector<ListNode *> node_vec;
 ~~~
 > 思路2
-对 k 个链表进行分治，两两进行合并
+对 k 个链表进行分治，两两进行合并 （使用递归）
