@@ -104,3 +104,72 @@ compute_flag = 0
 切换至NUMBER_STATE
 注意字符指针 i 退格
 
+~~~
+int calculate(std::string s)
+{
+    static const int STATE_BEGIN = 0;
+    static const int NUMBER_STATE = 1;
+    static const int OPERATION_STATE = 2;
+    std::stack<int> number_stack;
+    std::stack<char> operation_state;
+    int number = 0;
+    int STATE = STATE_BEGIN;
+    int compuate_flag = 0;
+    for (int i = 0; i < s.length(); i++)
+    {
+        if (s[i] == ' ')    // 跳过空格
+            continue;
+        switch(STATE)
+        {
+            case STATE_BEGIN:   // 状态机处于开始状态
+                if(s[i] > '0' && s[i] < '9')
+                    STATE = NUMBER_STATE;
+                else
+                    STATE = OPERATION_STATE;
+                break;
+            case NUMBER_STATE:  // 状态机处于数字状态
+                if(s[i] > '0' && s[i] < '9')
+                    number = number * 10 + s[i] - '0';
+                else
+                {
+                    number_stack.push(number);  // 已经完整读取一个数字
+                    if (compuate_flag == 1)     // 计算
+                        compute(number_stack, operation_stack);
+                    number = 0;                 // number置零
+                    i--;
+                    STATE = OPERATION_STATE;
+                }
+                break;
+            case OPERATION_STATE:
+                if (s[i] == '+' || s[i] == '-')
+                {
+                    operation_stack.push(s[i]);
+                    compuate_flag = 1;
+                }
+                else if (s[i] == '(')
+                {
+                    compuate_flag = 0;
+                    STATE = NUMBER_STATE;
+                }     
+                else if(s[i] > '0' && s[i] < '9')
+                {
+                    STATE = NUMBER_STATE;
+                    i--；
+                }
+                else if (s[i] == ')')
+                    compuate(number_stack, operation_stack);
+                break;
+        }
+
+    }
+    if (number != 0)
+    {
+        number_stack.push(number);
+        compute(number_stack, operation_stack);
+    }
+    if (number == 0 && number_stack.empty())
+        return 0;
+    return number_stack.top();
+
+}
+
