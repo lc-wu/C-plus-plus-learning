@@ -75,7 +75,7 @@ bool check_is_valid_order(std::queue<int> &order) // 检测序列
 
 }
 ~~~
-### 简单的计算器  224
+### 5：简单的计算器  224
 设计一个计算器，输入一个字符串存储的数学表达式，可以计算包括 （ ） + - 四种符合的数学表达式，输入的数学表达式字符串保证是合法的。输入的数学表达式中可能存在空格字符。
 
 > 思路 难点在于处理字符串  使用状态机的思想
@@ -119,13 +119,14 @@ int calculate(std::string s)
     {
         if (s[i] == ' ')    // 跳过空格
             continue;
-        switch(STATE)
+        switch(STATE)       // 有限状态机
         {
             case STATE_BEGIN:   // 状态机处于开始状态
                 if(s[i] > '0' && s[i] < '9')
                     STATE = NUMBER_STATE;
                 else
                     STATE = OPERATION_STATE;
+                i--;    // 不管s[i]是什么，都要退一格，把当前i交给下一个状态进行处理
                 break;
             case NUMBER_STATE:  // 状态机处于数字状态
                 if(s[i] > '0' && s[i] < '9')
@@ -136,11 +137,11 @@ int calculate(std::string s)
                     if (compuate_flag == 1)     // 计算
                         compute(number_stack, operation_stack);
                     number = 0;                 // number置零
-                    i--;
+                    i--;                        // 如果不是数字，说明是字符，所以退一格，把当前i交给下个一状态进行处理
                     STATE = OPERATION_STATE;
                 }
                 break;
-            case OPERATION_STATE:
+            case OPERATION_STATE:   // 状态机属于字符
                 if (s[i] == '+' || s[i] == '-')
                 {
                     operation_stack.push(s[i]);
@@ -154,7 +155,7 @@ int calculate(std::string s)
                 else if(s[i] > '0' && s[i] < '9')
                 {
                     STATE = NUMBER_STATE;
-                    i--；
+                    i--；       // 同样，在字符状态出现数字，要把当前i交给数字状态处理
                 }
                 else if (s[i] == ')')
                     compuate(number_stack, operation_stack);
@@ -170,6 +171,121 @@ int calculate(std::string s)
     if (number == 0 && number_stack.empty())
         return 0;
     return number_stack.top();
-
 }
+~~~
+### 预备知识：STL优先级队列（二叉堆）
+二叉堆，最小（大）值先出的完全二叉树
+~~~
+#include <stdio.h>
+#include <queue>
+int main() 
+{
+    std::priority queue<int> big_heap;  // 默认构造是最大堆
+    std::priority queue<int， std::vector<int>, std::greate<int> > small_heap;  // 最小堆构造方法
+    std::priority queue<int， std::vector<int>, std::less<int> > big_heap2;  // 最大堆构造方法
+
+    if (big_heap.empty())   // 判断堆是否为空，返回bool
+    {
+        printf("big_heap is empty!\n");
+    }
+
+    int test[] = {6,10,1,7,99,4,33};
+    for (int i = 0; i < 7; i++)
+    {
+        big_heap.push(test[i]);     // 元素插入到堆中，堆自动调整
+    }
+    print("big_heap.top = %d\n", big_heap.top());   // 返回堆顶元素
+    big_heap.push(1000);
+    print("big_heap.top = %d\n", big_heap.top());
+    for (int i = 0; i < 3; i++)
+    {
+        big_heap.pop();             // 弹出堆顶元素
+    }
+
+    print("big_heap.top = %d\n", big_heap.top());
+    print("big_heap.size = %d\n", big_heap.size()); // 返回堆的元素个数
+    return 0;
+}
+~~~
+
+### 6：数组中第K大的数  215 E
+已知一个未排序的数组，求这个数组中第k大的数字
+> 思路：
+维护一个K大小的最小堆，堆中元素个数小于k时，新元素直接进入堆；
+否则，当堆顶小于新元素时，弹出堆顶，将新元素加入堆。
+扫描完所有元素后，堆顶就是第k大的数。
+时间复杂度  N * logk
+如果将数组排序，时间复杂度为 N * logN
+
+### 7：寻找中位数 295 H
+设计一个数据结构，该数据结构动态维护一组数据，且支持如下操作：
+1.添加元素：void addNum(int num), 将整形num添加至数据结构中。
+2.返回数据中的中位数： double finMedian(), 返回其维护的数据的中位数。
+中位数定义：
+a.若数据个数为奇数，中位数是该组数据排序后中间的数。[1,2,3]->2
+b.若数据个数为偶数，中位数是该数据排序后中间两个数平均值。[1,2,3,4]->2.5
+>思路 巧用堆的性质
+动态维护一个最大堆和一个最小堆，最大堆存储一半数据，最小堆存储一半数据，维护最大堆的堆顶比最小堆的堆顶小。
+
+> 情况1 最大堆、最小堆元素个数相同
+新元素小于最大堆堆顶，添加到最大堆中；
+新元素大于最大堆堆顶，添加到最小堆；
+
+> 情况2 最大堆比最小堆多一个元素
+新元素小于最大堆堆顶，将最大堆的堆顶push进入最小堆，堆顶元素pop，新元素push进入最大堆；
+新元素大于最大堆堆顶，直接新元素push进入最小堆；
+
+> 情况3 最大堆比最小堆少一个元素
+新元素小于最大堆堆顶，新元素push进入最大堆；
+新元素大于最大堆堆顶，将最小堆的堆顶push进入最大堆，堆顶元素pop，新元素push进入最小堆；
+
+~~~
+void addNum(int num)
+{
+    if (big_queue.empty())
+    {
+        big_queue.push(num);
+        return;
+    }
+
+    if (big_queue.size() == small_queue.size())
+    {
+        if (num < big_queue.top()>)
+            big_queue.push(num);
+        else
+            small_queue.push(num);
+    }
+    else if (big_queue.size() > small_queue.size())
+    {
+        if (num > big_queue.top())
+            small_queue.push(num);
+        else
+        {
+            small_queue.push(big_queue.top());
+            big_queue.pop();
+            big_queue.push(num);
+        }
+    }
+    else if (big_queue.size() < small_queue.size())
+    {
+        if (num < big_queue.top())
+            big_queue.push(num);
+        else
+        {
+            big_queue.push(small_queue.top());
+            small_queue.pop();
+            small_queue.push(num);
+        }
+    }
+}
+
+double findMedian()
+{
+    if (big_queue.size() == small_queue.size())
+        return (big_queue.top() + small_queue.top()) / 2;
+    else if (big_queue.size() > small_queue.size())
+        return big_queue.top();
+    return small_queue.top();
+}
+~~~
 
