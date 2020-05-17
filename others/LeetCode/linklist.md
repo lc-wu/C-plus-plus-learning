@@ -43,7 +43,7 @@ node_map： 原链表节点地址->节点位置（第几个节点）
 map2： 节点位置（第几个节点）-> 新链表节点地址
 
 ~~~
-RandomListNode *copyRandomList(RandomListNode * head){
+RandomListNode * copyRandomList(RandomListNode * head){
     std::map<RandomListNode *, int> node_map; // 地址到节点位置的map
     std::vector<RandomListNode *> node_vec; // 使用vector根据存储节点位置访问地址
     RandomListNode * ptr = head;
@@ -52,8 +52,8 @@ RandomListNode *copyRandomList(RandomListNode * head){
     {
         // 新链表节点push到node_vec
         node_vec.push_back(new RandomListNode(ptr->label));
-        // 生成新链表节点位置 i 到地址的map
-        node_map[ptr] = i;
+        // 生成新链表节点位置 i 到地址的map映射
+        node_map[ptr] = i;      
         ptr = ptr->next;
         i++;
     }
@@ -69,8 +69,8 @@ RandomListNode *copyRandomList(RandomListNode * head){
         if (ptr->random)
         {   
             // 建立原来链表的random指针
-            int id = node_map[ptr->random];
-            node_vec[i]->random = node_vec[id];
+            int id = node_map[ptr->random]; // 根据地址找到对应链表的位置
+            node_vec[i]->random = node_vec[id]; // 链表新的地址复制给 random指针
         }
         ptr = ptr->next;
         i++;
