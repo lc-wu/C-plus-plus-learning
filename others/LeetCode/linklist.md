@@ -88,7 +88,7 @@ RandomListNode * copyRandomList(RandomListNode * head){
 已知 k 个已排序链表头结点指针，将 K 个链表合并，合并后仍然有序，返回合并后头结点。
 
 > 思路1 排序
-链表头结点指针保存在 vector<ListNode *> & lists
+链表头结点指针保存在 vector<ListNode * > & lists
 将 k*n 个节点放到vector中， 再将vector排序， 再将节点顺序相连。设有k个链表，平均每个链表有n个节点
 利用 STL排序算法 sort
 ~~~
